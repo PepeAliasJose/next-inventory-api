@@ -18,6 +18,13 @@ export type EditCategory = {
   new_type: number
 }
 
+export type AddEntity = {
+  token: string
+  category_id: string
+  name: string
+  data: {}
+}
+
 export type userToken = {
   userId: string
   admin: boolean

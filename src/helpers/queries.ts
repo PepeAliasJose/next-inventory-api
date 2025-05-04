@@ -47,3 +47,8 @@ export function createColumns (tableName: string, columns: column[]) {
 export function createView (categoryName: string) {
   return `CREATE view \`${categoryName}_view\` AS  ( SELECT * FROM \`${categoryName}\` )`
 }
+
+/**
+ *
+ */
+export function insertIntoCat (tableName: string, objectId: number, data: {}) {}
