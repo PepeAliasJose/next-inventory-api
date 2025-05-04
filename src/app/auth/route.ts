@@ -30,13 +30,11 @@ export async function POST (req: NextRequest) {
       { userId: user.id, admin: user.admin },
       key as string,
       {
-        expiresIn: '7d'
+        expiresIn: '7d' //El token caduca en 7 dias
       }
     )
     return NextResponse.json({ ok: token }, { status: 200 })
   } else {
     return NextResponse.json({ ok: errors.E400 }, { status: 403 })
   }
-
-  return NextResponse.json({ ok: 'ok' }, { status: 200 })
 }

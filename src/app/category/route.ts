@@ -3,8 +3,12 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { prisma } from '@/helpers/conection'
 import { errors } from '@/helpers/errors'
-import { column } from '@/helpers/types'
-import { validateColumn, validateString } from '@/helpers/functions'
+import { AddCategory, column, EditCategory, userToken } from '@/helpers/types'
+import {
+  validateColumn,
+  validateSessionToken,
+  validateString
+} from '@/helpers/functions'
 import {
   createCategory,
   createColumn,
@@ -41,10 +45,80 @@ import {
  */
 
 export async function POST (req: NextRequest) {
+  let data
   try {
-    return addCategory(req)
+    data = await req.json()
   } catch (error) {
-    return NextResponse.json({ error: errors.E001 }, { status: 500 })
+    return NextResponse.json({ error: errors.E002 }, { status: 400 })
+  }
+
+  if (data.token) {
+    const userToken = (await validateSessionToken(data.token)) as userToken
+    //Si esta mal devolver el error
+    if (userToken.error) {
+      return NextResponse.json({ error: userToken.error }, { status: 403 })
+    } else if (userToken.admin) {
+      //Comprobar si es admin
+      return addCategory(data)
+    } else {
+      return NextResponse.json({ error: errors.E404 }, { status: 403 })
+    }
+  } else {
+    return NextResponse.json({ error: errors.E401 }, { status: 403 })
+  }
+}
+
+async function addCategory (data: AddCategory) {
+  //TODO: cambiar la generacion de nombre de tabla
+  let catName: string
+  let type: number
+  let columns: column[]
+  try {
+    catName = data.category_name.toLowerCase()
+    type = parseInt(data.type) + 1
+    columns = data.columns
+  } catch (error) {
+    return NextResponse.json({ error: errors.E002 }, { status: 400 })
+  }
+
+  //Validations
+  if (!validateString(catName)) {
+    //Cannot contain white spaces or special caracters
+    return NextResponse.json({ error: errors.E101 }, { status: 400 })
+  }
+  if (isNaN(type) || type < 2 || type > 3) {
+    //Needs to be a valid category
+    return NextResponse.json({ error: errors.E102 }, { status: 400 })
+  }
+  let columnsNamesValidation: string[] = []
+  try {
+    columns.forEach(column => {
+      if (columnsNamesValidation.includes(column.name)) {
+        throw new Error(errors.E109)
+      }
+      columnsNamesValidation.push(column.name)
+      validateColumn(column)
+    })
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 400 })
+  }
+  try {
+    const res = await prisma.$transaction([
+      prisma.$executeRawUnsafe(createCategory(catName)),
+      prisma.$executeRawUnsafe(createColumns(catName, columns)),
+      //prisma.$executeRawUnsafe(createView(catName)),
+      prisma.categories.create({
+        data: { name: data.category_name, id_parent: type, view_name: catName }
+      })
+    ])
+    //console.log(createCategory(catName))
+
+    return NextResponse.json({ ok: res }, { status: 200 })
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: errors.E001 + ' - ' + error?.meta?.message },
+      { status: 400 }
+    )
   }
 }
 
@@ -57,27 +131,38 @@ export async function POST (req: NextRequest) {
  *
  */
 export async function PUT (req: NextRequest) {
-  try {
-    return editCategory(req)
-  } catch (error) {
-    return NextResponse.json({ error: errors.E001 }, { status: 500 })
-  }
-}
-
-async function editCategory (req: NextRequest) {
   let data
   try {
     data = await req.json()
   } catch (error) {
+    console.log(error)
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
+
+  if (data.token) {
+    const userToken = (await validateSessionToken(data.token)) as userToken
+    //Si esta mal devolver el error
+    if (userToken.error) {
+      return NextResponse.json({ error: userToken.error }, { status: 403 })
+    } else if (userToken.admin) {
+      //Comprobar si es admin
+      return editCategory(data)
+    } else {
+      return NextResponse.json({ error: errors.E404 }, { status: 403 })
+    }
+  } else {
+    return NextResponse.json({ error: errors.E401 }, { status: 403 })
+  }
+}
+
+async function editCategory (data: EditCategory) {
   let result = ''
   if (data.category_id > 3) {
     if (data.new_name) {
       //Cambiar nombre en 'Categories'
       try {
         const res = await prisma.categories.update({
-          where: { id: parseInt(data.category_id) },
+          where: { id: parseInt(data.category_id as unknown as string) },
           data: { name: data.new_name }
         })
       } catch (error: any) {
@@ -90,10 +175,10 @@ async function editCategory (req: NextRequest) {
     }
     if (data.new_type == 1 || data.new_type == 2) {
       //cambiar el tipo
-      const tipo = parseInt(data.new_type) + 1
+      const tipo = parseInt(data.new_type as unknown as string) + 1
       try {
         const res = await prisma.categories.update({
-          where: { id: parseInt(data.category_id) },
+          where: { id: parseInt(data.category_id as unknown as string) },
           data: { id_parent: tipo }
         })
       } catch (error: any) {
@@ -142,59 +227,5 @@ async function deleteCategory (req: NextRequest) {
     //Borrar la tabla
   } else {
     return NextResponse.json({ error: errors.E100 }, { status: 400 })
-  }
-}
-
-async function addCategory (req: NextRequest) {
-  let data
-  try {
-    data = await req.json()
-  } catch (error) {
-    return NextResponse.json({ error: errors.E002 }, { status: 400 })
-  }
-
-  //TODO: cambiar la generacion de nombre de tabla
-  const catName: string = data.category_name.toLowerCase()
-  const type: number = parseInt(data.type) + 1
-  const columns: column[] = data.columns
-
-  //Validations
-  if (!validateString(catName)) {
-    //Cannot contain white spaces or special caracters
-    return NextResponse.json({ error: errors.E101 }, { status: 400 })
-  }
-  if (isNaN(type) || type < 2 || type > 3) {
-    //Needs to be a valid category
-    return NextResponse.json({ error: errors.E102 }, { status: 400 })
-  }
-  let columnsNamesValidation: string[] = []
-  try {
-    columns.forEach(column => {
-      if (columnsNamesValidation.includes(column.name)) {
-        throw new Error(errors.E109)
-      }
-      columnsNamesValidation.push(column.name)
-      validateColumn(column)
-    })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 400 })
-  }
-  try {
-    const res = await prisma.$transaction([
-      prisma.$executeRawUnsafe(createCategory(catName)),
-      prisma.$executeRawUnsafe(createColumns(catName, columns)),
-      //prisma.$executeRawUnsafe(createView(catName)),
-      prisma.categories.create({
-        data: { name: data.category_name, id_parent: type, view_name: catName }
-      })
-    ])
-    //console.log(createCategory(catName))
-
-    return NextResponse.json({ ok: res }, { status: 200 })
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: errors.E001 + ' - ' + error?.meta?.message },
-      { status: 400 }
-    )
   }
 }

@@ -15,5 +15,6 @@ export const errors = {
   E400: 'E400: Invalid username or password',
   E401: 'E401: Session token missing',
   E402: 'E402: Session token is expired',
-  E403: 'E403: Session token is invalid'
+  E403: 'E403: Session token is invalid',
+  E404: 'E404: User is not authorized (admin required)'
 }
