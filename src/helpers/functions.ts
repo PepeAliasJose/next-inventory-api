@@ -129,7 +129,7 @@ export function parseBoolean (bool: string | boolean) {
  */
 export function validateString (value: string): boolean {
   //Hacer el regex
-  const regexp = new RegExp('^[a-z_]+$')
+  const regexp = new RegExp('^[a-zA-Z_]+$')
   return regexp.test(value)
 }
 

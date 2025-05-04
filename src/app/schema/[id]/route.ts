@@ -44,10 +44,14 @@ async function getCategory ({ params }: { params: { id: string } }) {
       const res = await prisma.$queryRawUnsafe<{}[]>(
         `DESCRIBE \`${category?.view_name}\``
       )
-      return NextResponse.json(
-        { category: category, columns: res },
-        { status: 200 }
-      )
+      const cat: Partial<{
+        id: number
+        name: string
+        id_parent: number | null
+        view_name?: string | null
+      } | null> = category
+      delete cat.view_name
+      return NextResponse.json({ category: cat, columns: res }, { status: 200 })
     } else {
       return NextResponse.json({ error: errors.E100 }, { status: 400 })
     }

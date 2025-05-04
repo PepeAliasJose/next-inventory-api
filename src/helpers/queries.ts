@@ -15,9 +15,9 @@ export function createCategory (categoryName: string) {
 
 export function createColumn (tableName: string, column: column) {
   let query = `ALTER TABLE \`${tableName}\` 
-    ADD COLUMN \`${column.name}\` ${typeSQL[typeValues.indexOf(column.type)]} ${
-    column.nullable ? '' : notNull
-  } 
+    ADD COLUMN \`${column.name.toLowerCase()}\` ${
+    typeSQL[typeValues.indexOf(column.type)]
+  } ${column.nullable ? '' : notNull} 
     DEFAULT \'${typeFunctions[typeValues.indexOf(column.type)](
       column.default as string
     )}\'`
@@ -33,7 +33,7 @@ export function createColumns (tableName: string, columns: column[]) {
       columns[x].default as string
     )}\'`
 
-    query += `ADD COLUMN \`${columns[x].name}\` ${
+    query += `ADD COLUMN \`${columns[x].name.toLowerCase()}\` ${
       typeSQL[typeValues.indexOf(columns[x].type)]
     } ${columns[x].nullable ? '' : notNull} ${
       columns[x].default !== null ? def : ''

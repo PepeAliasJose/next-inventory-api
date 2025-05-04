@@ -1,8 +1,8 @@
-// ROUTE TO RETREIVE THE COMPLETE DB SCHEMA
+// ROUTE TO RETREIVE THE DB TABLE NAMES
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/helpers/conection'
-import { groupList, renameKey, validateSessionToken } from '@/helpers/functions'
+import { renameKey, validateSessionToken } from '@/helpers/functions'
 import { errors } from '@/helpers/errors'
 import { userToken } from '@/helpers/types'
 
@@ -20,23 +20,23 @@ export async function POST (req: NextRequest) {
     if (userToken.error) {
       return NextResponse.json({ error: userToken.error }, { status: 403 })
     } else {
-      return getCompleteSchema()
+      return getCategories()
     }
   } else {
     return NextResponse.json({ error: errors.E401 }, { status: 403 })
   }
 }
 
-async function getCompleteSchema () {
+async function getCategories () {
   try {
-    const res = await prisma.$queryRaw<
-      {}[]
-    >`select TABLE_NAME, COLUMN_NAME, IS_NULLABLE, DATA_TYPE from information_schema.columns
-WHERE TABLE_SCHEMA = "base_main"`
-    return NextResponse.json(
-      { schema: groupList(res, 'TABLE_NAME') },
-      { status: 200 }
-    )
+    const res: any = await prisma.categories.findMany({
+      select: { name: true, id: true, id_parent: true, view_name: false }
+    })
+    res.forEach((obj: { [name: string]: string }) => {
+      return renameKey(obj as any, 'Tables_in_base_main', 'table')
+    })
+    //const res = await prisma.categories.findMany()
+    return NextResponse.json({ schema: res }, { status: 200 })
   } catch (err) {
     console.log(err)
     prisma.$disconnect()

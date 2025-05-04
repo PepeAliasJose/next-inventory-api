@@ -4,6 +4,7 @@ import { NextResponse, NextRequest } from 'next/server'
 import { prisma } from '@/helpers/conection'
 import { errors } from '@/helpers/errors'
 import { AddCategory, column, EditCategory, userToken } from '@/helpers/types'
+import crypto from 'crypto'
 import {
   validateColumn,
   validateSessionToken,
@@ -70,11 +71,13 @@ export async function POST (req: NextRequest) {
 
 async function addCategory (data: AddCategory) {
   //TODO: cambiar la generacion de nombre de tabla
-  let catName: string
+  let tableName: string
+  let nameForCategory: string
   let type: number
   let columns: column[]
   try {
-    catName = data.category_name.toLowerCase()
+    nameForCategory = data.category_name
+    tableName = crypto.randomBytes(16).toString('hex')
     type = parseInt(data.type) + 1
     columns = data.columns
   } catch (error) {
@@ -82,7 +85,7 @@ async function addCategory (data: AddCategory) {
   }
 
   //Validations
-  if (!validateString(catName)) {
+  if (!validateString(nameForCategory)) {
     //Cannot contain white spaces or special caracters
     return NextResponse.json({ error: errors.E101 }, { status: 400 })
   }
@@ -104,14 +107,14 @@ async function addCategory (data: AddCategory) {
   }
   try {
     const res = await prisma.$transaction([
-      prisma.$executeRawUnsafe(createCategory(catName)),
-      prisma.$executeRawUnsafe(createColumns(catName, columns)),
-      //prisma.$executeRawUnsafe(createView(catName)),
+      prisma.$executeRawUnsafe(createCategory(tableName)),
+      prisma.$executeRawUnsafe(createColumns(tableName, columns)),
+      //prisma.$executeRawUnsafe(createView(tableName)),
       prisma.categories.create({
-        data: { name: data.category_name, id_parent: type, view_name: catName }
+        data: { name: nameForCategory, id_parent: type, view_name: tableName }
       })
     ])
-    //console.log(createCategory(catName))
+    //console.log(createCategory(tableName))
 
     return NextResponse.json({ ok: res }, { status: 200 })
   } catch (error: any) {
