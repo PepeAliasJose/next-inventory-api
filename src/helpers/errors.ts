@@ -1,0 +1,19 @@
+export const errors = {
+  E001: 'E001: Internal error, please check the manual',
+  E002: 'E002: Internal error, caused by incorrect data ',
+  E100: 'E100: Invalid category id',
+  E101: 'E101: Invalid category name',
+  E102: 'E102: Invalid category type',
+  E103: 'E103: Invalid column values',
+  E104: 'E104: Invalid column name',
+  E105: 'E105: Invalid column type',
+  E106: 'E106: Invalid column nullable option',
+  E107: 'E107: Invalid column default value',
+  E108: 'E108: The provided data does not match the given type',
+  E109: 'E109: Column names cannot be duplicated',
+  E110: 'E110: Category names cannot be duplicated',
+  E400: 'E400: Invalid username or password',
+  E401: 'E401: Session token missing',
+  E402: 'E402: Session token is expired',
+  E403: 'E403: Session token is invalid'
+}

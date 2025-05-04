@@ -8,11 +8,15 @@
     "start": "next start"
   },
   "dependencies": {
-    "next": "15.2.4"
+    "@prisma/client": "^6.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "next": "15.2.4",
+    "prisma": "^6.5.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^20",
-    "@types/react": "^19"
+    "@types/react": "^19",
+    "typescript": "^5"
   }
 }
