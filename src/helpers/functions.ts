@@ -2,6 +2,7 @@ import { isBooleanObject, isDate, isStringObject } from 'util/types'
 import { errors } from './errors'
 import { column, userToken } from './types'
 import jwt, { JwtPayload } from 'jsonwebtoken'
+import { NextResponse } from 'next/server'
 
 /**
  * Renames a key in a JSON list
@@ -98,13 +99,14 @@ export function none (val: any) {
 /**
  *
  * Parse datetime to MySQL string
- * @param date string of date to be converted and parsed
+ * @param date string of date to be converted and parsed (timestamp)
  *
  * @return a string with the date in MySQL format
  *
  */
 export function parseDate (date: string) {
-  return new Date(date).toISOString().replace('T', ' ').replace('Z', '')
+  const d = new Date(parseInt(date))
+  return d.toISOString().replace('Z', '').replace('T', ' ')
 }
 
 /**
@@ -150,5 +152,63 @@ export async function validateSessionToken (token: string) {
   } catch (error) {
     //Lanza una excepcion cuando no es valido
     return { error: errors.E403 }
+  }
+}
+
+/**
+ *
+ * Execute a function if the data contains a valid token with admin auth
+ *
+ * @param data any data received with a token parameter
+ * @param func the function to execute
+ *
+ * @return NextReponse
+ *
+ */
+export async function executeWithAuthAdmin (
+  data: any,
+  func: (data: any) => Promise<NextResponse>
+) {
+  if (data.token) {
+    const userToken = (await validateSessionToken(data.token)) as userToken
+    //Si esta mal devolver el error
+    if (userToken.error) {
+      return NextResponse.json({ error: userToken.error }, { status: 403 })
+    } else if (userToken.admin) {
+      //Comprobar si es admin
+      return func(data)
+    } else {
+      return NextResponse.json({ error: errors.E404 }, { status: 403 })
+    }
+  } else {
+    return NextResponse.json({ error: errors.E401 }, { status: 403 })
+  }
+}
+
+/**
+ *
+ * Execute a function if the data contains a valid token
+ *
+ * @param data any data received with a token parameter
+ * @param func the function to execute
+ *
+ * @return NextReponse
+ *
+ */
+export async function executeWithAuth (
+  data: any,
+  func: (data: any) => Promise<NextResponse>
+) {
+  if (data.token) {
+    const userToken = (await validateSessionToken(data.token)) as userToken
+    //Si esta mal devolver el error
+    if (userToken.error) {
+      return NextResponse.json({ error: userToken.error }, { status: 403 })
+    } else {
+      //Comprobar si es admin
+      return func(data)
+    }
+  } else {
+    return NextResponse.json({ error: errors.E401 }, { status: 403 })
   }
 }

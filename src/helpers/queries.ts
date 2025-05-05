@@ -44,11 +44,39 @@ export function createColumns (tableName: string, columns: column[]) {
   return query.substring(0, query.length - 1)
 }
 
+/**
+ *
+ * Create a query to change column name
+ *
+ * @param tablename table to change column
+ * @param old old column name
+ * @param newN new column name
+ *
+ * @return Query string
+ */
+export function changeColumn (tablename: string, old: string, newN: string) {
+  return ''
+}
+
+/**
+ *
+ * @param tableName table name to delete column
+ * @param column column name to delete
+ *
+ * @return DROP query
+ *
+ */
+export function deleteColumn (tableName: string, column: string) {
+  return `ALTER TABLE \`${tableName}\` DROP COLUMN \`${column.toLowerCase()}\``
+}
+
 export function createView (categoryName: string) {
   return `CREATE view \`${categoryName}_view\` AS  ( SELECT * FROM \`${categoryName}\` )`
 }
 
 /**
+ *
+ * TODO: arreglar tipos de datos
  *
  */
 export function insertIntoCat (
@@ -74,6 +102,8 @@ export function insertIntoCat (
 }
 
 /**
+ *
+ * TODO: arreglar tipos de datos
  *
  */
 export function updateIntoCat (

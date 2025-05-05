@@ -18,6 +18,16 @@ export type EditCategory = {
   new_type: number
 }
 
+export type AddColum = {
+  category_id: string
+  column: column
+}
+
+export type DeleteColum = {
+  category_id: string
+  column: string
+}
+
 export type AddEntity = {
   token: string
   category_id: string
