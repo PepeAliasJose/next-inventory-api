@@ -2,6 +2,7 @@ import { column } from './types'
 import { none, parseBoolean, parseDate } from './functions'
 
 const typeValues = ['int', 'decimal', 'string', 'boolean', 'datetime']
+//TODO: hacer funciones de conversion restantes
 const typeFunctions = [none, none, none, parseBoolean, parseDate]
 const typeSQL = ['INT', 'FLOAT(4)', 'VARCHAR(255)', 'BOOL', 'DATETIME']
 const notNull = 'NOT NULL'
@@ -76,8 +77,17 @@ export function createView (categoryName: string) {
 
 /**
  *
- * TODO: arreglar tipos de datos
+ * Creates a query to insert values into a category
  *
+ * @param tableName table name for inserting data
+ * @param objectId entity id
+ * @param [data={}] data to insert in the following format:
+ *
+ * "data":{
+ *  "column_name":{"value":"","type":""}, ...
+ *  }
+ *
+ * @return needed query
  */
 export function insertIntoCat (
   tableName: string,
@@ -91,8 +101,8 @@ export function insertIntoCat (
   })
   dataKeys.push('`entity_id`')
 
-  const dataValues = Object.values(data).map(x => {
-    return "'" + x + "'"
+  const dataValues = Object.values(data).map((x: any) => {
+    return "'" + typeFunctions[typeValues.indexOf(x.type)](x.value) + "'"
   })
   dataValues.push("'" + objectId.toString() + "'")
   return (
@@ -103,8 +113,17 @@ export function insertIntoCat (
 
 /**
  *
- * TODO: arreglar tipos de datos
+ * Creates a query to update values into a category
  *
+ * @param tableName table name for updating data
+ * @param objectId entity id
+ * @param [data={}] data to update in the following format:
+ *
+ * "data":{
+ *  "column_name":{"value":"","type":""}, ...
+ *  }
+ *
+ * @return needed query
  */
 export function updateIntoCat (
   tableName: string,
@@ -117,8 +136,8 @@ export function updateIntoCat (
   const dataKeys = Object.keys(data).map(x => {
     return '`' + x + '`'
   })
-  const dataValues = Object.values(data).map(x => {
-    return "'" + x + "'"
+  const dataValues = Object.values(data).map((x: any) => {
+    return "'" + typeFunctions[typeValues.indexOf(x.type)](x.value) + "'"
   })
 
   let values = []

@@ -2,7 +2,11 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/helpers/conection'
-import { renameKey, validateSessionToken } from '@/helpers/functions'
+import {
+  executeWithAuth,
+  renameKey,
+  validateSessionToken
+} from '@/helpers/functions'
 import { errors } from '@/helpers/errors'
 import { userToken } from '@/helpers/types'
 
@@ -14,17 +18,7 @@ export async function POST (req: NextRequest) {
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
-  if (data.token) {
-    const userToken = (await validateSessionToken(data.token)) as userToken
-    //Si esta mal devolver el error
-    if (userToken.error) {
-      return NextResponse.json({ error: userToken.error }, { status: 403 })
-    } else {
-      return getCategories()
-    }
-  } else {
-    return NextResponse.json({ error: errors.E401 }, { status: 403 })
-  }
+  return executeWithAuth(data, getCategories)
 }
 
 async function getCategories () {

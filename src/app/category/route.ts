@@ -6,6 +6,7 @@ import { errors } from '@/helpers/errors'
 import { AddCategory, column, EditCategory, userToken } from '@/helpers/types'
 import crypto from 'crypto'
 import {
+  executeWithAuthAdmin,
   validateColumn,
   validateSessionToken,
   validateString
@@ -53,20 +54,7 @@ export async function POST (req: NextRequest) {
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
-  if (data.token) {
-    const userToken = (await validateSessionToken(data.token)) as userToken
-    //Si esta mal devolver el error
-    if (userToken.error) {
-      return NextResponse.json({ error: userToken.error }, { status: 403 })
-    } else if (userToken.admin) {
-      //Comprobar si es admin
-      return addCategory(data)
-    } else {
-      return NextResponse.json({ error: errors.E404 }, { status: 403 })
-    }
-  } else {
-    return NextResponse.json({ error: errors.E401 }, { status: 403 })
-  }
+  return executeWithAuthAdmin(data, addCategory)
 }
 
 async function addCategory (data: AddCategory) {
@@ -142,20 +130,7 @@ export async function PUT (req: NextRequest) {
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
-  if (data.token) {
-    const userToken = (await validateSessionToken(data.token)) as userToken
-    //Si esta mal devolver el error
-    if (userToken.error) {
-      return NextResponse.json({ error: userToken.error }, { status: 403 })
-    } else if (userToken.admin) {
-      //Comprobar si es admin
-      return editCategory(data)
-    } else {
-      return NextResponse.json({ error: errors.E404 }, { status: 403 })
-    }
-  } else {
-    return NextResponse.json({ error: errors.E401 }, { status: 403 })
-  }
+  return executeWithAuthAdmin(data, editCategory)
 }
 
 async function editCategory (data: EditCategory) {
@@ -203,7 +178,8 @@ async function editCategory (data: EditCategory) {
 
 /**
  *
- * Delete category
+ * TODO: Delete category
+ * TODO: Auth
  *
  */
 export async function DELETE (req: NextRequest) {

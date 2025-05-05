@@ -1,6 +1,6 @@
 import { prisma } from '@/helpers/conection'
 import { errors } from '@/helpers/errors'
-import { validateSessionToken } from '@/helpers/functions'
+import { executeWithAuthAdmin, validateSessionToken } from '@/helpers/functions'
 import { insertIntoCat } from '@/helpers/queries'
 import { AddEntity, userToken } from '@/helpers/types'
 import { NextRequest, NextResponse } from 'next/server'
@@ -16,20 +16,7 @@ export async function POST (req: NextRequest) {
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
-  if (data.token) {
-    const userToken = (await validateSessionToken(data.token)) as userToken
-    //Si esta mal devolver el error
-    if (userToken.error) {
-      return NextResponse.json({ error: userToken.error }, { status: 403 })
-    } else if (userToken.admin) {
-      //Comprobar si es admin
-      return addEntity(data)
-    } else {
-      return NextResponse.json({ error: errors.E404 }, { status: 403 })
-    }
-  } else {
-    return NextResponse.json({ error: errors.E401 }, { status: 403 })
-  }
+  return executeWithAuthAdmin(data, addEntity)
 }
 
 async function addEntity (data: AddEntity) {
@@ -55,7 +42,7 @@ async function addEntity (data: AddEntity) {
             res.id,
             data.data
           )
-
+          console.log('AGREGAR ENTIDAD: ', insertQuerie)
           await tx.$queryRawUnsafe(insertQuerie)
         } else {
           throw new Error(errors.E100)

@@ -1,6 +1,6 @@
 import { prisma } from '@/helpers/conection'
 import { errors } from '@/helpers/errors'
-import { validateSessionToken } from '@/helpers/functions'
+import { executeWithAuth, validateSessionToken } from '@/helpers/functions'
 import { selectFrom, updateIntoCat } from '@/helpers/queries'
 import { AddEntity, userToken } from '@/helpers/types'
 import { NextRequest, NextResponse } from 'next/server'
@@ -23,17 +23,7 @@ export async function POST (
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
-  if (data.token) {
-    const userToken = (await validateSessionToken(data.token)) as userToken
-    //Si esta mal devolver el error
-    if (userToken.error) {
-      return NextResponse.json({ error: userToken.error }, { status: 403 })
-    } else {
-      return getEntity(id)
-    }
-  } else {
-    return NextResponse.json({ error: errors.E401 }, { status: 403 })
-  }
+  return executeWithAuth(data, getEntity)
 }
 
 async function getEntity (id: string) {
@@ -79,6 +69,7 @@ export async function PUT (
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
+  //TODO: Arreglar funciones que necesiten 2 parametros
   if (data.token) {
     const userToken = (await validateSessionToken(data.token)) as userToken
     //Si esta mal devolver el error
