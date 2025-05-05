@@ -36,29 +36,35 @@ async function addEntity (data: AddEntity) {
   //Si es una categoria valida
   if (parseInt(data.category_id) > 3) {
     try {
-      await prisma.$transaction(async tx => {
-        //Insertar el objeto en Entitites
-        const res = await tx.entities.create({
-          data: { name: data.name, category_id: parseInt(data.category_id) }
-        })
+      const res = await prisma.$transaction(async tx => {
         const category = await tx.categories.findUnique({
           where: { id: parseInt(data.category_id) }
         })
-        console.log('RES: ', res, category)
+        //console.log('CAT: ', category)
+
         //Comprobar si la categoria existe
         if (category) {
+          //Insertar el objeto en Entitites
+          const res = await tx.entities.create({
+            data: { name: data.name, category_id: parseInt(data.category_id) }
+          })
+          //console.log('RES: ', res)
           //Insertar en su tabla
-          insertIntoCat(category?.view_name as string, res.id, data.data)
-        } else {
-          return NextResponse.json({ error: errors.E100 }, { status: 400 })
-        }
+          const insertQuerie = insertIntoCat(
+            category?.view_name as string,
+            res.id,
+            data.data
+          )
 
-        throw new Error('')
+          await tx.$queryRawUnsafe(insertQuerie)
+        } else {
+          throw new Error(errors.E100)
+        }
       })
-    } catch (err) {
-      // Handle the rollback...
-      console.log({ err })
-      return NextResponse.json({ error: errors.E002 }, { status: 400 })
+      return NextResponse.json({ ok: 'ok' }, { status: 200 })
+    } catch (err: any) {
+      console.log(err)
+      return NextResponse.json({ error: err?.message }, { status: 400 })
     }
   } else {
     return NextResponse.json({ error: errors.E100 }, { status: 400 })

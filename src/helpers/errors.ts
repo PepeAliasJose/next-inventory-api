@@ -12,6 +12,7 @@ export const errors = {
   E108: 'E108: The provided data does not match the given type',
   E109: 'E109: Column names cannot be duplicated',
   E110: 'E110: Category names cannot be duplicated',
+  E200: 'E200: Entity not found',
   E400: 'E400: Invalid username or password',
   E401: 'E401: Session token missing',
   E402: 'E402: Session token is expired',

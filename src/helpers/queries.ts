@@ -51,4 +51,69 @@ export function createView (categoryName: string) {
 /**
  *
  */
-export function insertIntoCat (tableName: string, objectId: number, data: {}) {}
+export function insertIntoCat (
+  tableName: string,
+  objectId: number,
+  data: {} = {}
+) {
+  let insert = `INSERT INTO \`${tableName}\` (?) `
+  let values = 'VALUES (?)'
+  const dataKeys = Object.keys(data).map(x => {
+    return '`' + x + '`'
+  })
+  dataKeys.push('`entity_id`')
+
+  const dataValues = Object.values(data).map(x => {
+    return "'" + x + "'"
+  })
+  dataValues.push("'" + objectId.toString() + "'")
+  return (
+    insert.replace('?', dataKeys.join(', ')) +
+    values.replace('?', dataValues.join(', '))
+  )
+}
+
+/**
+ *
+ */
+export function updateIntoCat (
+  tableName: string,
+  objectId: number,
+  data: any = { null: true }
+) {
+  let update = `UPDATE \`${tableName}\` SET ? `
+  const where = `WHERE entity_id = ${objectId}`
+
+  const dataKeys = Object.keys(data).map(x => {
+    return '`' + x + '`'
+  })
+  const dataValues = Object.values(data).map(x => {
+    return "'" + x + "'"
+  })
+
+  let values = []
+  for (let x = 0; x < dataKeys.length; x++) {
+    values.push(dataKeys[x] + ' = ' + dataValues[x])
+  }
+
+  return data.null ? null : update.replace('?', values.join(', ')) + where
+}
+
+/**
+ *
+ * Select * from table with where clause
+ *
+ */
+export function selectFrom (table: string, entity_id: number) {
+  return `SELECT * FROM \`${table}\` where entity_id = '${entity_id}'`
+}
+
+/**
+ *
+ *  Select * from table matching with entites table
+ *
+ */
+export function selectFromAll (table: string) {
+  return `SELECT * FROM \`${table}\` as A JOIN Entities as B
+ON A.entity_id = B.id`
+}
