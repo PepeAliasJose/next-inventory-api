@@ -1,7 +1,7 @@
 import { prisma } from '@/helpers/conection'
 import { errors } from '@/helpers/errors'
-import { executeWithAuth, validateSessionToken } from '@/helpers/functions'
-import { selectFrom, updateIntoCat } from '@/helpers/queries'
+import { validateSessionToken } from '@/helpers/functions'
+import { deleteFrom, selectFrom, updateIntoCat } from '@/helpers/queries'
 import { AddEntity, userToken } from '@/helpers/types'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -142,5 +142,64 @@ async function updateEntity (data: AddEntity, id: string) {
     }
   } else {
     return NextResponse.json({ error: errors.E100 }, { status: 400 })
+  }
+}
+
+/**
+ *
+ * DELETE an entity by id
+ *
+ */
+export async function DELETE (
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  //Entity id
+  const { id } = await params
+  let data
+  try {
+    data = await req.json()
+  } catch (error) {
+    return NextResponse.json({ error: errors.E002 }, { status: 400 })
+  }
+
+  //TODO: Arreglar funciones que necesiten 2 parametros
+  if (data.token) {
+    const userToken = (await validateSessionToken(data.token)) as userToken
+    //Si esta mal devolver el error
+    if (userToken.error) {
+      return NextResponse.json({ error: userToken.error }, { status: 403 })
+    } else {
+      //Comprobar si es admin
+      return deleteEntity(id)
+    }
+  } else {
+    return NextResponse.json({ error: errors.E401 }, { status: 403 })
+  }
+}
+
+async function deleteEntity (id: string) {
+  try {
+    const item = await prisma.entities.findUnique({
+      select: { id: true, category: true },
+      where: { id: parseInt(id) }
+    })
+    console.log(item)
+    if (item) {
+      const res = await prisma.$transaction([
+        prisma.contains.deleteMany({ where: { id_contained: item.id } }),
+        prisma.contains.deleteMany({ where: { id_container: item.id } }),
+        prisma.entities.delete({ where: { id: item.id } }),
+        prisma.$queryRawUnsafe(
+          deleteFrom(item.category.view_name as string, item.id)
+        )
+      ])
+      return NextResponse.json({ ok: 'ok' }, { status: 200 })
+    } else {
+      return NextResponse.json({ error: errors.E200 }, { status: 400 })
+    }
+  } catch (error: any) {
+    console.log(error.message)
+    return NextResponse.json({ error: error.message }, { status: 400 })
   }
 }

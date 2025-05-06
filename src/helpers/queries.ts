@@ -188,3 +188,18 @@ export function selectFromAll (table: string) {
   return `SELECT * FROM \`${table}\` as A JOIN Entities as B
 ON A.entity_id = B.id`
 }
+
+/**
+ *
+ * DELETE FROM TABLE_NAME WHERE entity_id = ?
+ * Only returns a single result
+ *
+ * @param table table's name
+ * @param entity_id entity id
+ *
+ * @return the query needed for the search of a single item
+ *
+ */
+export function deleteFrom (table: string, entity_id: number) {
+  return `DELETE FROM \`${table}\` where entity_id = '${entity_id}'`
+}
