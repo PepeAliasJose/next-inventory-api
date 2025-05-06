@@ -150,7 +150,13 @@ export function updateIntoCat (
 
 /**
  *
- * Select * from table with where clause
+ * SELECT * FROM TABLE_NAME WHERE entity_id = ?
+ * Only returns a single result
+ *
+ * @param table table's name
+ * @param entity_id entity id
+ *
+ * @return the query needed for the search of a single item
  *
  */
 export function selectFrom (table: string, entity_id: number) {
@@ -159,8 +165,24 @@ export function selectFrom (table: string, entity_id: number) {
 
 /**
  *
- *  Select * from table matching with entites table
+ * SELECT * FROM TABLE_NAME WHERE entity_id IN (?)
+ * Return a list of entities
  *
+ * @param table table's name
+ * @param entity_id_list entity id
+ *
+ * @return the query needed for the search of a single item
+ *
+ */
+export function selectFromMany (table: string, entity_id: number) {
+  const query = `SELECT * FROM \`${table}\` where entity_id IN (?)`
+  return ''
+}
+
+/**
+ *
+ *  Select * from table matching with entites table
+ *  Select all entities from a table, join with entity table
  */
 export function selectFromAll (table: string) {
   return `SELECT * FROM \`${table}\` as A JOIN Entities as B

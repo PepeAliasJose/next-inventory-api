@@ -7,6 +7,7 @@ import { errors } from '@/helpers/errors'
 import { validateSessionToken } from '@/helpers/functions'
 import { userToken } from '@/helpers/types'
 
+//TODO: fix this for the auth function
 export async function POST (
   req: NextRequest,
   { params }: { params: { id: string } }

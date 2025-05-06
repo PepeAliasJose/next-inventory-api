@@ -35,6 +35,12 @@ export type AddEntity = {
   data: {}
 }
 
+export type ContainObject = {
+  token: string
+  contained: string
+  container: string
+}
+
 export type userToken = {
   userId: string
   admin: boolean

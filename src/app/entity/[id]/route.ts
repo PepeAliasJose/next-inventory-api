@@ -23,7 +23,19 @@ export async function POST (
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
-  return executeWithAuth(data, getEntity)
+  //TODO: Arreglar funciones que necesiten 2 parametros
+  if (data.token) {
+    const userToken = (await validateSessionToken(data.token)) as userToken
+    //Si esta mal devolver el error
+    if (userToken.error) {
+      return NextResponse.json({ error: userToken.error }, { status: 403 })
+    } else {
+      //Comprobar si es admin
+      return getEntity(id)
+    }
+  } else {
+    return NextResponse.json({ error: errors.E401 }, { status: 403 })
+  }
 }
 
 async function getEntity (id: string) {
@@ -45,9 +57,12 @@ async function getEntity (id: string) {
     } else {
       return NextResponse.json({ error: errors.E200 }, { status: 400 })
     }
-  } catch (error) {
+  } catch (error: any) {
     //console.log(error)
-    return NextResponse.json({ error: errors.E002 }, { status: 400 })
+    return NextResponse.json(
+      { error: errors.E002 + ' - ' + error.message },
+      { status: 400 }
+    )
   }
 }
 
