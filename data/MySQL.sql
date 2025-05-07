@@ -21,7 +21,8 @@ CREATE TABLE `Users` (
 );
 
 ALTER TABLE `Categories` ADD FOREIGN KEY (`id_parent`) REFERENCES `Categories` (`id`);
-
 ALTER TABLE `Entities` ADD FOREIGN KEY (`category_id`) REFERENCES `Categories` (`id`);
-
 ALTER TABLE `Entities` ADD FOREIGN KEY (`location`) REFERENCES `Entities` (`id`);
+
+INSERT INTO `Categories` (name,id_parent,view_name)
+VALUES ('Entities',null,null),('Items',1,null),('Containers',1,null)
