@@ -22,18 +22,18 @@ export async function POST (
 
 async function getEntityContainer (data: { id: string }) {
   try {
-    const item = await prisma.contains.findMany({
+    const item = await prisma.entities.findFirst({
       select: {
         //id: true,
-        contained: {
+        contains: {
           select: {
             id: true,
             name: true,
-            category: { select: { name: true } }
+            category: { select: { name: true, id: true } }
           }
         } //, name: true, category: true } }
       },
-      where: { id_container: parseInt(data.id) }
+      where: { id: parseInt(data.id) }
     })
     if (item) {
       return NextResponse.json({ ok: item }, { status: 200 })

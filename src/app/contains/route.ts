@@ -31,7 +31,7 @@ async function containObject (data: ContainObject) {
       return NextResponse.json({ error: errors.E206 }, { status: 400 })
     }
     const ob1 = await prisma.entities.findFirst({
-      select: { id: true, name: true, category: true, contained: true },
+      select: { id: true, name: true, category: true, location: true },
       where: { id: parseInt(data.contained) }
     })
     const ob2 = await prisma.entities.findFirst({
@@ -42,21 +42,16 @@ async function containObject (data: ContainObject) {
     if (ob1 && ob2) {
       //Si los objetos existen y el 2 es un contenedor
       //y el 1 no esta contenido dentro de nada previemante
-      const repetido = ob1.contained.length == 0
-      if (ob2.category.id_parent == CONTAINER_CAT_ID && repetido) {
-        const res = await prisma.contains.create({
+      if (ob2.category.id_parent == CONTAINER_CAT_ID) {
+        const res = await prisma.entities.update({
           data: {
-            id_contained: ob1.id,
-            id_container: ob2.id
-          }
+            location: ob2.id
+          },
+          where: { id: ob1.id }
         })
         return NextResponse.json({ ok: 'ok' }, { status: 200 })
       } else {
-        if (!repetido) {
-          return NextResponse.json({ error: errors.E203 }, { status: 400 })
-        } else {
-          return NextResponse.json({ error: errors.E202 }, { status: 400 })
-        }
+        return NextResponse.json({ error: errors.E202 }, { status: 400 })
       }
     } else {
       return NextResponse.json({ error: errors.E200 }, { status: 400 })
@@ -87,58 +82,12 @@ export async function DELETE (req: NextRequest) {
 
 async function deleteContain (data: ContainObject) {
   try {
-    const res = await prisma.contains.findFirst({
-      where: { id_contained: parseInt(data.contained) }
+    const res = await prisma.entities.update({
+      where: { id: parseInt(data.contained) },
+      data: { location: null }
     })
     if (res) {
-      await prisma.contains.delete({ where: { id: res.id } })
       return NextResponse.json({ ok: 'ok' }, { status: 200 })
-    } else {
-      return NextResponse.json({ error: errors.E204 }, { status: 400 })
-    }
-  } catch (error) {
-    return NextResponse.json({ error: 'ok' }, { status: 400 })
-  }
-}
-
-/**
- *
- * UPDATE a relation bewteen 2 objects
- *
- * @param token auth token
- * @param contained entity id to update
- * @param container entity id of the NEW container
- *
- */
-export async function PUT (req: NextRequest) {
-  let data
-  try {
-    data = await req.json()
-  } catch (error) {
-    return NextResponse.json({ error: errors.E002 }, { status: 400 })
-  }
-
-  return executeWithAuth(data, updateContain)
-}
-
-async function updateContain (data: ContainObject) {
-  try {
-    if (data.contained == data.container) {
-      return NextResponse.json({ error: errors.E206 }, { status: 400 })
-    }
-    const res = await prisma.contains.findFirst({
-      where: { id_contained: parseInt(data.contained) }
-    })
-    if (res) {
-      if (res.id_container !== parseInt(data.container)) {
-        await prisma.contains.update({
-          data: { id_container: parseInt(data.container) },
-          where: { id: res.id }
-        })
-        return NextResponse.json({ ok: 'ok' }, { status: 200 })
-      } else {
-        return NextResponse.json({ ok: errors.E205 }, { status: 200 })
-      }
     } else {
       return NextResponse.json({ error: errors.E204 }, { status: 400 })
     }

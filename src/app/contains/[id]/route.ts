@@ -22,22 +22,21 @@ export async function POST (
 
 async function getEntityContainer (data: { id: string }) {
   try {
-    const item = await prisma.contains.findFirst({
+    const item = await prisma.entities.findFirst({
       select: {
         id: true,
-        contained: true,
-        container: { select: { id: true, name: true, category: true } }
+        located: { select: { id: true, name: true, category: true } }
       },
-      where: { id_contained: parseInt(data.id) }
+      where: { id: parseInt(data.id) }
     })
     if (item) {
-      const details: {}[] = await prisma.$queryRawUnsafe(
-        selectFrom(
-          item.container.category.view_name as string,
-          item.container.id
+      if (item.located) {
+        const details: {}[] = await prisma.$queryRawUnsafe(
+          selectFrom(item.located.category.view_name as string, item.located.id)
         )
-      )
-      item.container = { ...item.container, ...details[0] }
+        item.located.category.view_name = null
+        item.located = { ...item.located, ...details[0] }
+      }
       return NextResponse.json({ ok: item }, { status: 200 })
     } else {
       return NextResponse.json({ error: errors.E204 }, { status: 400 })

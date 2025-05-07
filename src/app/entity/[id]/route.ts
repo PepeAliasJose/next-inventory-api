@@ -187,8 +187,11 @@ async function deleteEntity (id: string) {
     console.log(item)
     if (item) {
       const res = await prisma.$transaction([
-        prisma.contains.deleteMany({ where: { id_contained: item.id } }),
-        prisma.contains.deleteMany({ where: { id_container: item.id } }),
+        prisma.entities.updateMany({
+          //Remove the entity id from all items
+          where: { location: item.id },
+          data: { location: null }
+        }),
         prisma.entities.delete({ where: { id: item.id } }),
         prisma.$queryRawUnsafe(
           deleteFrom(item.category.view_name as string, item.id)
