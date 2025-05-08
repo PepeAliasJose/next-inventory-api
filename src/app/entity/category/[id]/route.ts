@@ -1,7 +1,12 @@
 import { prisma } from '@/helpers/conection'
 import { errors } from '@/helpers/errors'
 import { executeWithAuth, validateSessionToken } from '@/helpers/functions'
-import { selectFrom, selectFromAll, updateIntoCat } from '@/helpers/queries'
+import {
+  selectFrom,
+  selectFromAll,
+  selectFromAllJoin,
+  updateIntoCat
+} from '@/helpers/queries'
 import { AddEntity, userToken } from '@/helpers/types'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -22,15 +27,15 @@ export async function POST (
   } catch (error) {
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
-
+  data.id = id
   return executeWithAuth(data, getEntities)
 }
 
-async function getEntities (id: string) {
-  if (parseInt(id) > 3) {
+async function getEntities (data: { id: string; join: string[] }) {
+  if (parseInt(data.id) > 3) {
     try {
       const category = await prisma.categories.findUnique({
-        where: { id: parseInt(id) }
+        where: { id: parseInt(data.id) }
       })
       if (category) {
         const categoryData = selectFromAll(category.view_name as string)

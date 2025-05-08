@@ -191,6 +191,21 @@ ON A.entity_id = B.id`
 
 /**
  *
+ *  Select * from table matching with entites table
+ *  Select all entities from a table, join with entity table
+ */
+export function selectFromAllJoin (table: string, column: { column: string }[]) {
+  const letras = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+
+  const join = `SELECT A.*, B.* AS rel_cat FROM \`${table}\` as A 
+  JOIN Entities as B ON A.entity_id = B.id
+  JOIN Entities as C ON C.id = A.\`${column}\``
+
+  return join
+}
+
+/**
+ *
  * DELETE FROM TABLE_NAME WHERE entity_id = ?
  * Only returns a single result
  *
@@ -202,4 +217,45 @@ ON A.entity_id = B.id`
  */
 export function deleteFrom (table: string, entity_id: number) {
   return `DELETE FROM \`${table}\` where entity_id = '${entity_id}'`
+}
+
+/**
+ *
+ * search for tables which contain a column name
+ * Only returns a single result
+ *
+ * @param column name
+ *
+ * @return the query needed for the search
+ *
+ */
+export function searchTableColumn (column: string) {
+  return `SELECT TABLE_NAME, COLUMN_NAME, Categories.name AS CAT_NAME, Categories.id AS CAT_ID
+          FROM information_schema.columns
+          JOIN Categories ON view_name = TABLE_NAME
+          WHERE COLUMN_NAME LIKE "%${column}%";`
+}
+
+/**
+ *
+ * search for value in a specific column and table
+ * Only returns a single result
+ *
+ * @param table table's name
+ * @param column columns's name
+ * @param value search param
+ *
+ * @return the query needed for the search
+ *
+ */
+export function searchItemWithTableColumn (
+  table: string,
+  column: string,
+  value: string
+) {
+  return `SELECT A.*, B.name AS name, B.category_id as cat,
+  C.name AS rel_name, C.category_id as rel_cat FROM  \`${table}\` AS A 
+  JOIN Entities AS B ON B.id = A.entity_id 
+  JOIN ENtities AS C ON C.id = A.\`${column}\`
+  WHERE A.\`${column}\` LIKE \'%${value}%\' `
 }

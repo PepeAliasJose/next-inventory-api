@@ -41,6 +41,15 @@ export type ContainObject = {
   container: string
 }
 
+export type ReferenceObjects = {
+  token: string
+  referenceFrom?: string
+  filter: {
+    column?: string
+    value: string
+  }
+}
+
 export type userToken = {
   userId: string
   admin: boolean
