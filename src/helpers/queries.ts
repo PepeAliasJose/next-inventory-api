@@ -238,6 +238,22 @@ export function searchTableColumn (column: string) {
 
 /**
  *
+ * search for tables which contain a column name
+ * Only returns a single result
+ *
+ * @param column name
+ *
+ * @return the query needed for the search
+ *
+ */
+export function completeSchema () {
+  return `SELECT TABLE_NAME, COLUMN_NAME, Categories.name AS CAT_NAME, Categories.id AS CAT_ID
+          FROM information_schema.columns
+          JOIN Categories ON view_name = TABLE_NAME`
+}
+
+/**
+ *
  * search for value in a specific column and table
  * Only returns a single result
  *
