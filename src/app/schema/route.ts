@@ -30,7 +30,7 @@ async function getCategories () {
       return renameKey(obj as any, 'Tables_in_base_main', 'table')
     })
     //const res = await prisma.categories.findMany()
-    return NextResponse.json({ schema: res }, { status: 200 })
+    return NextResponse.json({ ok: res }, { status: 200 })
   } catch (err) {
     console.log(err)
     prisma.$disconnect()
