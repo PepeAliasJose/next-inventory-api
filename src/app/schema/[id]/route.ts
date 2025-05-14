@@ -39,6 +39,13 @@ async function getCategory ({ params }: { params: { id: string } }) {
       return NextResponse.json({ error: errors.E100 }, { status: 400 })
     }
     const category = await prisma.categories.findUnique({
+      select: {
+        id: true,
+        id_parent: true,
+        name: true,
+        view_name: true,
+        _count: { select: { Entities: true } }
+      },
       where: { id: parseInt(id) }
     })
     if (category && parseInt(id) > 3) {
@@ -52,7 +59,10 @@ async function getCategory ({ params }: { params: { id: string } }) {
         view_name?: string | null
       } | null> = category
       delete cat.view_name
-      return NextResponse.json({ category: cat, columns: res }, { status: 200 })
+      return NextResponse.json(
+        { ok: { category: cat, columns: res } },
+        { status: 200 }
+      )
     } else {
       return NextResponse.json({ error: errors.E100 }, { status: 400 })
     }

@@ -185,8 +185,8 @@ export function selectFromMany (table: string, entity_id: number) {
  *  Select all entities from a table, join with entity table
  */
 export function selectFromAll (table: string) {
-  return `SELECT * FROM \`${table}\` as A JOIN Entities as B
-ON A.entity_id = B.id`
+  return `SELECT B.name, B.category_id, C.id as location_id, C.name as location, A.* FROM \`${table}\` as A LEFT JOIN Entities as B
+ON A.entity_id = B.id LEFT JOIN Entities as C ON B.location = C.id`
 }
 
 /**
@@ -273,5 +273,5 @@ export function searchItemWithTableColumn (
   C.name AS rel_name, C.category_id as rel_cat FROM  \`${table}\` AS A 
   JOIN Entities AS B ON B.id = A.entity_id 
   JOIN ENtities AS C ON C.id = A.\`${column}\`
-  WHERE A.\`${column}\` LIKE \'%${value}%\' `
+  WHERE A.\`${column}\` LIKE \'${value}%\' `
 }

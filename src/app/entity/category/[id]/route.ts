@@ -39,7 +39,7 @@ async function getEntities (data: { id: string; join: string[] }) {
       })
       if (category) {
         const categoryData = selectFromAll(category.view_name as string)
-        const res = await prisma.$queryRawUnsafe(categoryData)
+        const res: {} = await prisma.$queryRawUnsafe(categoryData)
         return NextResponse.json({ ok: res }, { status: 200 })
       } else {
         return NextResponse.json({ error: errors.E100 }, { status: 400 })

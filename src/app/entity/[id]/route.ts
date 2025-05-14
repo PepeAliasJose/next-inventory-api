@@ -41,6 +41,14 @@ export async function POST (
 async function getEntity (id: string) {
   try {
     const entity = await prisma.entities.findUnique({
+      select: {
+        id: true,
+        category_id: true,
+        located: true,
+        location: true,
+        name: true,
+        contains: true
+      },
       where: { id: parseInt(id) }
     })
     if (entity) {
@@ -51,7 +59,7 @@ async function getEntity (id: string) {
         selectFrom(table?.view_name?.trim() as string, parseInt(id))
       )
       return NextResponse.json(
-        { ok: { entity: entity, data: res[0] } },
+        { ok: { entity: { ...entity, category: table }, data: res[0] } },
         { status: 200 }
       )
     } else {

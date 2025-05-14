@@ -24,7 +24,14 @@ export async function POST (req: NextRequest) {
 async function getCategories () {
   try {
     const res: any = await prisma.categories.findMany({
-      select: { name: true, id: true, id_parent: true, view_name: false }
+      select: {
+        name: true,
+        id: true,
+        id_parent: true,
+        view_name: false,
+        _count: { select: { Entities: true } }
+      },
+      where: { id: { gt: 3 } }
     })
     res.forEach((obj: { [name: string]: string }) => {
       return renameKey(obj as any, 'Tables_in_base_main', 'table')

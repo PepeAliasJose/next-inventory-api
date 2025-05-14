@@ -151,7 +151,7 @@ export async function validateSessionToken (token: string) {
     }
   } catch (error) {
     //Lanza una excepcion cuando no es valido
-    return { error: errors.E403 }
+    return { error: errors.E402 }
   }
 }
 

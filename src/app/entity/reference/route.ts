@@ -33,6 +33,7 @@ async function getReferenceObjectsFiltered (data: ReferenceObjects) {
         result.push({
           name: tables[x].CAT_NAME,
           id: tables[x].CAT_ID,
+          column_name: tables[x].COLUMN_NAME,
           result: await prisma.$queryRawUnsafe(
             searchItemWithTableColumn(
               tables[x].TABLE_NAME,

@@ -32,6 +32,7 @@ export type AddEntity = {
   token: string
   category_id: string
   name: string
+  location: number
   data: {}
 }
 

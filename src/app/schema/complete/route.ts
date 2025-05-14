@@ -49,7 +49,7 @@ async function getAllCategory () {
       })
     )
 
-    return NextResponse.json({ category: posts }, { status: 200 })
+    return NextResponse.json({ ok: posts }, { status: 200 })
   } catch (err) {
     console.log(err)
     prisma.$disconnect()

@@ -33,7 +33,11 @@ async function addEntity (data: AddEntity) {
         if (category) {
           //Insertar el objeto en Entitites
           const res = await tx.entities.create({
-            data: { name: data.name, category_id: parseInt(data.category_id) }
+            data: {
+              name: data.name,
+              category_id: parseInt(data.category_id),
+              location: data?.location ? data.location : null
+            }
           })
           //console.log('RES: ', res)
           //Insertar en su tabla
