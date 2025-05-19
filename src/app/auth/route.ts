@@ -5,10 +5,15 @@ import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 
 async function authUser (username: string, passwd: string) {
-  return await prisma.users.findFirst({
-    select: { id: true, name: true, email: true, admin: true },
-    where: { name: username, passwd: passwd }
-  })
+  if (username && passwd) {
+    //IF a value is null prisma removes the where clause, if passwd is NULL
+    //prisma does not check that column and returns the user only by the name
+    return await prisma.users.findFirst({
+      select: { id: true, name: true, email: true, admin: true },
+      where: { AND: [{ name: username }, { passwd: passwd }] }
+    })
+  }
+  return null
 }
 
 /**
@@ -24,6 +29,7 @@ export async function POST (req: NextRequest) {
   }
 
   const user = await authUser(data.username, data.passwd)
+  console.log('USER: ', user)
   if (user) {
     const key = process.env.JWT_SECRET
     const token = jwt.sign(
@@ -35,6 +41,6 @@ export async function POST (req: NextRequest) {
     )
     return NextResponse.json({ ok: token }, { status: 200 })
   } else {
-    return NextResponse.json({ ok: errors.E400 }, { status: 403 })
+    return NextResponse.json({ error: errors.E400 }, { status: 403 })
   }
 }

@@ -29,6 +29,7 @@ async function getReferenceObjectsFiltered (data: ReferenceObjects) {
     )
     if (tables.length >= 1) {
       //Buscar el dato
+      console.log(tables)
       for (let x = tables.length - 1; x >= 0; x--) {
         result.push({
           name: tables[x].CAT_NAME,
@@ -45,8 +46,8 @@ async function getReferenceObjectsFiltered (data: ReferenceObjects) {
       }
     }
     return NextResponse.json({ ok: result }, { status: 200 })
-  } catch (error) {
-    console.log(error)
+  } catch (error: any) {
+    console.log(error.message)
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 }

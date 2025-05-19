@@ -92,19 +92,40 @@ export function createView (categoryName: string) {
 export function insertIntoCat (
   tableName: string,
   objectId: number,
-  data: {} = {}
+  data: { [k: string]: any } = {}
 ) {
   let insert = `INSERT INTO \`${tableName}\` (?) `
   let values = 'VALUES (?)'
-  const dataKeys = Object.keys(data).map(x => {
-    return '`' + x + '`'
-  })
+
+  const dataKeys = Object.keys(data)
+    .filter((k: any) => {
+      if (data[k].value.toString().length > 0) {
+        return true
+      }
+      return false
+    })
+    .map(x => {
+      return '`' + x + '`'
+    })
   dataKeys.push('`entity_id`')
 
-  const dataValues = Object.values(data).map((x: any) => {
-    return "'" + typeFunctions[typeValues.indexOf(x.type)](x.value) + "'"
-  })
-  dataValues.push("'" + objectId.toString() + "'")
+  const dataValues = Object.keys(data)
+    .filter((k: any) => {
+      if (data[k].value.toString().length > 0) {
+        return true
+      }
+      return false
+    })
+    .map((x: any) => {
+      return (
+        "'" +
+        typeFunctions[typeValues.indexOf(data[x].type)](data[x].value) +
+        "'"
+      )
+    })
+  dataValues.push(
+    "'" + (objectId.toString().length > 0 ? objectId.toString() : 'NULL') + "'"
+  )
   return (
     insert.replace('?', dataKeys.join(', ')) +
     values.replace('?', dataValues.join(', '))

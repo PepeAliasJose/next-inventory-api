@@ -156,6 +156,7 @@ async function updateEntity (data: AddEntity, id: string) {
 /**
  *
  * DELETE an entity by id
+ * //TODO: find references and delete
  *
  */
 export async function DELETE (

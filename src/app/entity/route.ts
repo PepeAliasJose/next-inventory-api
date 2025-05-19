@@ -15,7 +15,7 @@ export async function POST (req: NextRequest) {
   } catch (error) {
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
-
+  console.log('INSERT: ', data)
   return executeWithAuthAdmin(data, addEntity)
 }
 

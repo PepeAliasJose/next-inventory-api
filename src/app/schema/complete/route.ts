@@ -30,6 +30,13 @@ export async function POST (req: NextRequest) {
 async function getAllCategory () {
   try {
     const category = await prisma.categories.findMany({
+      select: {
+        name: true,
+        id: true,
+        id_parent: true,
+        view_name: true,
+        _count: { select: { Entities: true } }
+      },
       where: { id: { gt: 3 } }
     })
     const posts = await Promise.all(
