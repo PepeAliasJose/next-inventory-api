@@ -106,6 +106,7 @@ async function addCategory (data: AddCategory) {
 
     return NextResponse.json({ ok: res }, { status: 200 })
   } catch (error: any) {
+    console.log(error)
     return NextResponse.json(
       { error: errors.E001 + ' - ' + error?.meta?.message },
       { status: 400 }

@@ -19,13 +19,23 @@ export function createColumn (tableName: string, column: column) {
     ADD COLUMN \`${column.name.toLowerCase()}\` ${
     typeSQL[typeValues.indexOf(column.type)]
   } ${column.nullable ? '' : notNull} 
-    DEFAULT \'${typeFunctions[typeValues.indexOf(column.type)](
-      column.default as string
-    )}\'`
+    `
   //console.log(query)
   return query
 }
 
+/*
+DEFAULT \'${typeFunctions[typeValues.indexOf(column.type)](
+      column.default as string
+    )}\'
+*/
+
+/**
+ *
+ * @param tableName table's name to drop col
+ * @param columns column to drop
+ * @returns que query needed for the operation
+ */
 export function createColumns (tableName: string, columns: column[]) {
   let query = `ALTER TABLE \`${tableName}\` `
 

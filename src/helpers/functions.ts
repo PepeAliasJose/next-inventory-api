@@ -105,8 +105,11 @@ export function none (val: any) {
  *
  */
 export function parseDate (date: string) {
-  const d = new Date(parseInt(date))
-  return d.toISOString().replace('Z', '').replace('T', ' ')
+  if (date) {
+    const d = new Date(parseInt(date))
+    return d.toISOString().replace('Z', '').replace('T', ' ')
+  }
+  return null
 }
 
 /**
