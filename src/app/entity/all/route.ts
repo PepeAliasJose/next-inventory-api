@@ -22,9 +22,10 @@ async function getAllItems () {
         category_id: 'asc'
       }
     })
-
+    prisma.$disconnect()
     return NextResponse.json({ ok: items }, { status: 200 })
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 }

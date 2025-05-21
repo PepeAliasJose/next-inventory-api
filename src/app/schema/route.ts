@@ -15,6 +15,7 @@ export async function POST (req: NextRequest) {
   try {
     data = await req.json()
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
@@ -37,6 +38,7 @@ async function getCategories () {
       return renameKey(obj as any, 'Tables_in_base_main', 'table')
     })
     //const res = await prisma.categories.findMany()
+    prisma.$disconnect()
     return NextResponse.json({ ok: res }, { status: 200 })
   } catch (err) {
     console.log(err)

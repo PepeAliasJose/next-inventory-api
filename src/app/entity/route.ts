@@ -13,6 +13,7 @@ export async function POST (req: NextRequest) {
   try {
     data = await req.json()
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
   console.log('INSERT: ', data)
@@ -52,12 +53,15 @@ async function addEntity (data: AddEntity) {
           throw new Error(errors.E100)
         }
       })
+      prisma.$disconnect()
       return NextResponse.json({ ok: 'ok' }, { status: 200 })
     } catch (err: any) {
       console.log(err)
+      prisma.$disconnect()
       return NextResponse.json({ error: err?.message }, { status: 400 })
     }
   } else {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E100 }, { status: 400 })
   }
 }

@@ -19,6 +19,7 @@ export async function POST (req: NextRequest) {
   try {
     data = await req.json()
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
@@ -49,14 +50,18 @@ async function containObject (data: ContainObject) {
           },
           where: { id: ob1.id }
         })
+        prisma.$disconnect()
         return NextResponse.json({ ok: 'ok' }, { status: 200 })
       } else {
+        prisma.$disconnect()
         return NextResponse.json({ error: errors.E202 }, { status: 400 })
       }
     } else {
+      prisma.$disconnect()
       return NextResponse.json({ error: errors.E200 }, { status: 400 })
     }
   } catch (error: any) {
+    prisma.$disconnect()
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
 }
@@ -74,6 +79,7 @@ export async function DELETE (req: NextRequest) {
   try {
     data = await req.json()
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
@@ -87,11 +93,14 @@ async function deleteContain (data: ContainObject) {
       data: { location: null }
     })
     if (res) {
+      prisma.$disconnect()
       return NextResponse.json({ ok: 'ok' }, { status: 200 })
     } else {
+      prisma.$disconnect()
       return NextResponse.json({ error: errors.E204 }, { status: 400 })
     }
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: 'ok' }, { status: 400 })
   }
 }

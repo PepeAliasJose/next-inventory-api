@@ -25,6 +25,7 @@ export async function POST (
   try {
     data = await req.json()
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
   data.id = id
@@ -40,15 +41,19 @@ async function getEntities (data: { id: string; join: string[] }) {
       if (category) {
         const categoryData = selectFromAll(category.view_name as string)
         const res: {} = await prisma.$queryRawUnsafe(categoryData)
+        prisma.$disconnect()
         return NextResponse.json({ ok: res }, { status: 200 })
       } else {
+        prisma.$disconnect()
         return NextResponse.json({ error: errors.E100 }, { status: 400 })
       }
     } catch (error) {
       //console.log(error)
+      prisma.$disconnect()
       return NextResponse.json({ error: errors.E002 }, { status: 400 })
     }
   } else {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E100 }, { status: 400 })
   }
 }

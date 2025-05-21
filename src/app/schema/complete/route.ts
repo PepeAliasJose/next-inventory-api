@@ -23,6 +23,7 @@ export async function POST (req: NextRequest) {
       return getAllCategory()
     }
   } else {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E401 }, { status: 403 })
   }
 }
@@ -55,7 +56,7 @@ async function getAllCategory () {
         return { category: cat, column: res2 }
       })
     )
-
+    prisma.$disconnect()
     return NextResponse.json({ ok: posts }, { status: 200 })
   } catch (err) {
     console.log(err)

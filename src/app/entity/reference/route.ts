@@ -10,6 +10,7 @@ export async function POST (req: NextRequest) {
   try {
     data = await req.json()
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
@@ -45,9 +46,11 @@ async function getReferenceObjectsFiltered (data: ReferenceObjects) {
         })
       }
     }
+    prisma.$disconnect()
     return NextResponse.json({ ok: result }, { status: 200 })
   } catch (error: any) {
     console.log(error.message)
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 }

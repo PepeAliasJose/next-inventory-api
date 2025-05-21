@@ -25,6 +25,7 @@ export async function POST (req: NextRequest) {
   try {
     data = await req.json()
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
@@ -39,8 +40,10 @@ export async function POST (req: NextRequest) {
         expiresIn: '7d' //El token caduca en 7 dias
       }
     )
+    prisma.$disconnect()
     return NextResponse.json({ ok: token }, { status: 200 })
   } else {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E400 }, { status: 403 })
   }
 }

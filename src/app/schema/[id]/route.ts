@@ -16,6 +16,7 @@ export async function POST (
   try {
     data = await req.json()
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
@@ -23,11 +24,13 @@ export async function POST (
     const userToken = (await validateSessionToken(data.token)) as userToken
     //Si esta mal devolver el error
     if (userToken.error) {
+      prisma.$disconnect()
       return NextResponse.json({ error: userToken.error }, { status: 403 })
     } else {
       return getCategory({ params })
     }
   } else {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E401 }, { status: 403 })
   }
 }
@@ -64,6 +67,7 @@ async function getCategory ({ params }: { params: { id: string } }) {
         { status: 200 }
       )
     } else {
+      prisma.$disconnect()
       return NextResponse.json({ error: errors.E100 }, { status: 400 })
     }
   } catch (err) {

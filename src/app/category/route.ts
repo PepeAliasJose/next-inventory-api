@@ -15,7 +15,10 @@ import {
   createCategory,
   createColumn,
   createColumns,
-  createView
+  createView,
+  deleteReferenceCategory,
+  dropTable,
+  searchTableColumn
 } from '@/helpers/queries'
 
 /**
@@ -51,6 +54,7 @@ export async function POST (req: NextRequest) {
   try {
     data = await req.json()
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
@@ -69,16 +73,19 @@ async function addCategory (data: AddCategory) {
     type = parseInt(data.type) + 1
     columns = data.columns
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
   //Validations
   if (!validateString(nameForCategory)) {
     //Cannot contain white spaces or special caracters
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E101 }, { status: 400 })
   }
   if (isNaN(type) || type < 2 || type > 3) {
     //Needs to be a valid category
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E102 }, { status: 400 })
   }
   let columnsNamesValidation: string[] = []
@@ -91,6 +98,7 @@ async function addCategory (data: AddCategory) {
       validateColumn(column)
     })
   } catch (error: any) {
+    prisma.$disconnect()
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
   try {
@@ -103,10 +111,11 @@ async function addCategory (data: AddCategory) {
       })
     ])
     //console.log(createCategory(tableName))
-
+    prisma.$disconnect()
     return NextResponse.json({ ok: res }, { status: 200 })
   } catch (error: any) {
     console.log(error)
+    prisma.$disconnect()
     return NextResponse.json(
       { error: errors.E001 + ' - ' + error?.meta?.message },
       { status: 400 }
@@ -128,6 +137,7 @@ export async function PUT (req: NextRequest) {
     data = await req.json()
   } catch (error) {
     console.log(error)
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
@@ -145,6 +155,7 @@ async function editCategory (data: EditCategory) {
           data: { name: data.new_name }
         })
       } catch (error: any) {
+        prisma.$disconnect()
         return NextResponse.json(
           { error: errors.E001 + ' - ' + error?.meta?.message },
           { status: 400 }
@@ -161,6 +172,7 @@ async function editCategory (data: EditCategory) {
           data: { id_parent: tipo }
         })
       } catch (error: any) {
+        prisma.$disconnect()
         return NextResponse.json(
           { error: errors.E001 + ' - ' + error?.meta?.message },
           { status: 400 }
@@ -168,11 +180,13 @@ async function editCategory (data: EditCategory) {
       }
       result += 'OK: Type changed succesfully'
     } else if (data.new_type) {
+      prisma.$disconnect()
       return NextResponse.json({ error: errors.E102 }, { status: 400 })
     }
-
+    prisma.$disconnect()
     return NextResponse.json({ ok: result }, { status: 200 })
   } else {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E100 }, { status: 400 })
   }
 }
@@ -187,6 +201,7 @@ export async function DELETE (req: NextRequest) {
   try {
     return deleteCategory(req)
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E001 }, { status: 500 })
   }
 }
@@ -196,16 +211,64 @@ async function deleteCategory (req: NextRequest) {
   try {
     data = await req.json()
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
   if (data.category_id > 3) {
-    return NextResponse.json({ ok: 'Correcto' }, { status: 200 })
     //Borrar las entidades de la tabla de 'Entitites'
-    //Borrar las relaciones de contenedor que tengan una id de las borradas
+    //Borrar las relaciones con items de esta categoria
     //Borrar el registro de la tabla 'Categories'
     //Borrar la tabla
+    return deleteCategoryFunc(data.category_id)
   } else {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E100 }, { status: 400 })
+  }
+}
+
+async function deleteCategoryFunc (id: string) {
+  try {
+    const category = await prisma.categories.findUnique({
+      where: { id: parseInt(id) }
+    })
+    console.log(category)
+    const tables: {
+      TABLE_NAME: string
+      COLUMN_NAME: string
+      CAT_NAME: string
+      CAT_ID: string
+    }[] = await prisma.$queryRawUnsafe(searchTableColumn('eid&'))
+    console.log('TABLES: ', tables)
+    const queries = tables.map((t, i) => {
+      return deleteReferenceCategory(
+        t.TABLE_NAME,
+        t.COLUMN_NAME,
+        '::' + id + '::'
+      )
+    })
+    console.log('TABLAS: ', queries)
+    if (category) {
+      const res = await prisma.$transaction([
+        prisma.entities.deleteMany({
+          //Remove the entities from this category
+          where: { category_id: category.id }
+        }),
+        ...queries.map(q => {
+          return prisma.$queryRawUnsafe(q)
+        }),
+        prisma.categories.delete({ where: { id: category.id } }),
+        prisma.$queryRawUnsafe(dropTable(category.view_name as string))
+      ])
+      prisma.$disconnect()
+      return NextResponse.json({ ok: 'ok' }, { status: 200 })
+    } else {
+      prisma.$disconnect()
+      return NextResponse.json({ error: errors.E201 }, { status: 400 })
+    }
+  } catch (error: any) {
+    console.log(error.message)
+    prisma.$disconnect()
+    return NextResponse.json({ error: error.message }, { status: 400 })
   }
 }

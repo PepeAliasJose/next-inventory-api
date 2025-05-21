@@ -36,11 +36,14 @@ async function getEntityContainer (data: { id: string }) {
       where: { id: parseInt(data.id) }
     })
     if (item) {
+      prisma.$disconnect()
       return NextResponse.json({ ok: item }, { status: 200 })
     } else {
+      prisma.$disconnect()
       return NextResponse.json({ error: errors.E204 }, { status: 400 })
     }
   } catch (error) {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 }

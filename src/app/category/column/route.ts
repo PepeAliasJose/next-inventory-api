@@ -16,6 +16,7 @@ export async function POST (req: NextRequest) {
     data = await req.json()
   } catch (error) {
     console.log(error)
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
@@ -33,15 +34,19 @@ async function addColumn (data: AddColum) {
         const res = await prisma.$queryRawUnsafe(
           createColumn(cat.view_name as string, data.column)
         )
+        prisma.$disconnect()
         return NextResponse.json({ ok: res }, { status: 200 })
       } else {
+        prisma.$disconnect()
         return NextResponse.json({ error: errors.E100 }, { status: 400 })
       }
     } catch (error) {
       console.log(error)
+      prisma.$disconnect()
       return NextResponse.json({ error: errors.E002 }, { status: 400 })
     }
   } else {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E100 }, { status: 400 })
   }
 }
@@ -57,6 +62,7 @@ export async function DELETE (req: NextRequest) {
     data = await req.json()
   } catch (error) {
     console.log(error)
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
@@ -73,15 +79,19 @@ async function deleteColumnByName (data: DeleteColum) {
         const res = await prisma.$queryRawUnsafe(
           deleteColumn(cat.view_name as string, data.column)
         )
+        prisma.$disconnect()
         return NextResponse.json({ ok: res }, { status: 200 })
       } else {
+        prisma.$disconnect()
         return NextResponse.json({ error: errors.E100 }, { status: 400 })
       }
     } catch (error) {
       console.log(error)
+      prisma.$disconnect()
       return NextResponse.json({ error: errors.E002 }, { status: 400 })
     }
   } else {
+    prisma.$disconnect()
     return NextResponse.json({ error: errors.E100 }, { status: 400 })
   }
 }

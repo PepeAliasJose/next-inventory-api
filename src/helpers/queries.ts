@@ -270,6 +270,53 @@ export function searchTableColumn (column: string) {
 
 /**
  *
+ * Remove reference before deleting a category
+ *
+ * @param column name
+ *
+ * @return the query needed for the search
+ *
+ */
+export function deleteReferenceCategory (
+  table: string,
+  column: string,
+  search: string
+) {
+  return `UPDATE \`${table}\` SET \`${column}\` = NULL WHERE \`${column}\` LIKE "%${search}%";`
+}
+
+/**
+ *
+ * Remove reference before deleting a entity
+ *
+ * @param column name
+ *
+ * @return the query needed for the search
+ *
+ */
+export function deleteReferenceEntity (
+  table: string,
+  column: string,
+  search: string
+) {
+  return `UPDATE \`${table}\` SET \`${column}\` = NULL WHERE \`${column}\` LIKE "${search}%";`
+}
+
+/**
+ *
+ * DROP TABLE
+ *
+ * @param column name
+ *
+ * @return the query needed for the search
+ *
+ */
+export function dropTable (table: string) {
+  return `DROP TABLE \`${table}\`;`
+}
+
+/**
+ *
  * search for tables which contain a column name
  * Only returns a single result
  *
