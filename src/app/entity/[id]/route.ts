@@ -125,19 +125,24 @@ async function updateEntity (data: AddEntity, id: string) {
           if (data.name) {
             const res = await tx.entities.update({
               where: { id: parseInt(id) },
-              data: { name: data.name }
+              data: {
+                name: data.name,
+                location: data.location ? data.location : null
+              }
             })
           }
           //console.log('RES: ', res)
           //Actualizar en su tabla
-          const updateQuerie = updateIntoCat(
-            category?.view_name as string,
-            parseInt(id),
-            data.data
-          )
-          //console.log(updateQuerie)
-          if (updateQuerie) {
-            await tx.$queryRawUnsafe(updateQuerie)
+          if (Object.keys(data.data).length > 0) {
+            const updateQuerie = updateIntoCat(
+              category?.view_name as string,
+              parseInt(id),
+              data.data
+            )
+            console.log(updateQuerie)
+            if (updateQuerie) {
+              await tx.$queryRawUnsafe(updateQuerie)
+            }
           }
         } else {
           throw new Error(errors.E100)

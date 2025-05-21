@@ -1,3 +1,6 @@
+CREATE DATABASE base_test1;
+USE base_test1;
+
 CREATE TABLE `Categories` (
   `id` int UNIQUE PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(255),

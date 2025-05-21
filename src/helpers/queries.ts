@@ -15,10 +15,11 @@ export function createCategory (categoryName: string) {
 }
 
 export function createColumn (tableName: string, column: column) {
+  console.log('COL: ', column)
   let query = `ALTER TABLE \`${tableName}\` 
     ADD COLUMN \`${column.name.toLowerCase()}\` ${
     typeSQL[typeValues.indexOf(column.type)]
-  } ${column.nullable ? '' : notNull} 
+  } ${column.nullable.toString() == 'true' ? '' : notNull} 
     `
   //console.log(query)
   return query

@@ -29,7 +29,7 @@ async function addColumn (data: AddColum) {
         where: { id: parseInt(data.category_id) }
       })
       if (cat) {
-        //console.log(createColumn(cat.view_name as string, data.column))
+        console.log(createColumn(cat.view_name as string, data.column))
         const res = await prisma.$queryRawUnsafe(
           createColumn(cat.view_name as string, data.column)
         )
