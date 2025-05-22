@@ -38,7 +38,7 @@ export async function POST (
       prisma.$disconnect()
       return NextResponse.json({ error: userToken.error }, { status: 403 })
     } else {
-      //Comprobar si es admin
+      //No necesita admin aqui
       return getEntity(id)
     }
   } else {
@@ -112,12 +112,9 @@ export async function PUT (
     if (userToken.error) {
       prisma.$disconnect()
       return NextResponse.json({ error: userToken.error }, { status: 403 })
-    } else if (userToken.admin) {
-      //Comprobar si es admin
-      return updateEntity(data, id)
     } else {
-      prisma.$disconnect()
-      return NextResponse.json({ error: errors.E404 }, { status: 403 })
+      //No neceita admin aqui
+      return updateEntity(data, id)
     }
   } else {
     prisma.$disconnect()
@@ -205,8 +202,10 @@ export async function DELETE (
       prisma.$disconnect()
       return NextResponse.json({ error: userToken.error }, { status: 403 })
     } else {
-      //Comprobar si es admin
-      return deleteEntity(id)
+      if (userToken.admin) {
+        return deleteEntity(id)
+      }
+      return NextResponse.json({ error: errors.E404 }, { status: 402 })
     }
   } else {
     prisma.$disconnect()

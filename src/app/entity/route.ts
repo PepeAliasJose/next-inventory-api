@@ -1,6 +1,10 @@
 import { prisma } from '@/helpers/conection'
 import { errors } from '@/helpers/errors'
-import { executeWithAuthAdmin, validateSessionToken } from '@/helpers/functions'
+import {
+  executeWithAuth,
+  executeWithAuthAdmin,
+  validateSessionToken
+} from '@/helpers/functions'
 import { insertIntoCat } from '@/helpers/queries'
 import { AddEntity, userToken } from '@/helpers/types'
 import { NextRequest, NextResponse } from 'next/server'
@@ -17,7 +21,7 @@ export async function POST (req: NextRequest) {
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
   console.log('INSERT: ', data)
-  return executeWithAuthAdmin(data, addEntity)
+  return executeWithAuth(data, addEntity)
 }
 
 async function addEntity (data: AddEntity) {

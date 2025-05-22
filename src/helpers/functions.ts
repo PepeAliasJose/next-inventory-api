@@ -181,7 +181,7 @@ export async function executeWithAuthAdmin (
       //Comprobar si es admin
       return func(data)
     } else {
-      return NextResponse.json({ error: errors.E404 }, { status: 403 })
+      return NextResponse.json({ error: errors.E404 }, { status: 402 })
     }
   } else {
     return NextResponse.json({ error: errors.E401 }, { status: 403 })

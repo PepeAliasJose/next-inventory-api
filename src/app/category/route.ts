@@ -198,23 +198,19 @@ async function editCategory (data: EditCategory) {
  *
  */
 export async function DELETE (req: NextRequest) {
-  try {
-    return deleteCategory(req)
-  } catch (error) {
-    prisma.$disconnect()
-    return NextResponse.json({ error: errors.E001 }, { status: 500 })
-  }
-}
-
-async function deleteCategory (req: NextRequest) {
   let data
   try {
     data = await req.json()
   } catch (error) {
+    console.log(error)
     prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
 
+  return executeWithAuthAdmin(data, deleteCategory)
+}
+
+async function deleteCategory (data: any) {
   if (data.category_id > 3) {
     //Borrar las entidades de la tabla de 'Entitites'
     //Borrar las relaciones con items de esta categoria
