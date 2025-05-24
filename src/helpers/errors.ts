@@ -19,9 +19,15 @@ export const errors = {
   E204: 'E204: This relation does not exists',
   E205: 'E205: This relation already exists',
   E206: 'E206: An item cannot be contained by itself',
+  E300: 'E300: Username is required',
+  E301: 'E301: Password is required',
+  E302: 'E302: Email is required',
+  E303: 'E303: This user does not exists',
+  E304: 'E304: You cannot delete yourself',
   E400: 'E400: Invalid username or password',
   E401: 'E401: Session token missing',
   E402: 'E402: Session token is expired',
   E403: 'E403: Session token is invalid',
-  E404: 'E404: User is not authorized (admin required)'
+  E404: 'E404: User is not authorized (admin required)',
+  E405: 'E405: Your user no longer exists'
 }

@@ -30,4 +30,6 @@ ALTER TABLE `Entities` ADD FOREIGN KEY (`location`) REFERENCES `Entities` (`id`)
 INSERT INTO `Categories` (name,id_parent,view_name)
 VALUES ('Entities',null,null),('Items',1,null),('Containers',1,null)
 
+INSERT INTO `Users` (name,passwd) VALUES ("admin","21232f297a57a5a743894a0e4a801fc3")
+
 --select count(host) from information_schema.processlist;

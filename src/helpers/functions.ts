@@ -3,6 +3,7 @@ import { errors } from './errors'
 import { column, userToken } from './types'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { NextResponse } from 'next/server'
+import { prisma } from './conection'
 
 /**
  * Renames a key in a JSON list
@@ -179,6 +180,17 @@ export async function executeWithAuthAdmin (
       return NextResponse.json({ error: userToken.error }, { status: 403 })
     } else if (userToken.admin) {
       //Comprobar si es admin
+
+      //Comprobar si el usuario sigue existiendo
+      const test = await prisma.users.findUnique({
+        where: { id: parseInt(userToken.userId) },
+        select: { name: true, email: true, admin: true, id: true }
+      })
+      prisma.$disconnect()
+      if (test == null) {
+        return NextResponse.json({ error: errors.E405 }, { status: 403 })
+      }
+
       return func(data)
     } else {
       return NextResponse.json({ error: errors.E404 }, { status: 402 })
@@ -208,7 +220,15 @@ export async function executeWithAuth (
     if (userToken.error) {
       return NextResponse.json({ error: userToken.error }, { status: 403 })
     } else {
-      //Comprobar si es admin
+      //Comprobar si existe el usuario
+      const test = await prisma.users.findUnique({
+        where: { id: parseInt(userToken.userId) },
+        select: { name: true, email: true, admin: true, id: true }
+      })
+      prisma.$disconnect()
+      if (test == null) {
+        return NextResponse.json({ error: errors.E405 }, { status: 403 })
+      }
       return func(data)
     }
   } else {
