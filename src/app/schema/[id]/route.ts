@@ -10,7 +10,7 @@ import { userToken } from '@/helpers/types'
 //TODO: fix this for the auth function
 export async function POST (
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   let data
   try {
@@ -35,7 +35,7 @@ export async function POST (
   }
 }
 
-async function getCategory ({ params }: { params: { id: string } }) {
+async function getCategory ({ params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
     if (isNaN(parseInt(id))) {

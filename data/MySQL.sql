@@ -28,8 +28,8 @@ ALTER TABLE `Entities` ADD FOREIGN KEY (`category_id`) REFERENCES `Categories` (
 ALTER TABLE `Entities` ADD FOREIGN KEY (`location`) REFERENCES `Entities` (`id`) ON DELETE CASCADE;
 
 INSERT INTO `Categories` (name,id_parent,view_name)
-VALUES ('Entities',null,null),('Items',1,null),('Containers',1,null)
+VALUES ('Entities',null,null),('Items',1,null),('Containers',1,null);
 
-INSERT INTO `Users` (name,passwd) VALUES ("ppaliasjose","b43b0231a41b2aba2d6e9f3759f45122"),("admin","21232f297a57a5a743894a0e4a801fc3")
+INSERT INTO `Users` (name,passwd,admin) VALUES ("ppaliasjose","b43b0231a41b2aba2d6e9f3759f45122",1),("admin","21232f297a57a5a743894a0e4a801fc3",1);
 
 --select count(host) from information_schema.processlist;
