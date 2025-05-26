@@ -20,20 +20,20 @@ export async function POST (req: NextRequest) {
     prisma.$disconnect()
     return NextResponse.json({ error: errors.E002 }, { status: 400 })
   }
-  console.log('INSERT: ', data)
+  console.log('INSERTa: ', data)
   return executeWithAuth(data, addEntity)
 }
 
 async function addEntity (data: AddEntity) {
   //Si es una categoria valida
+
   if (parseInt(data.category_id) > 3) {
     try {
+      const category = await prisma.categories.findUnique({
+        where: { id: parseInt(data.category_id) }
+      })
+      console.log('CAT: ', category)
       const res = await prisma.$transaction(async tx => {
-        const category = await tx.categories.findUnique({
-          where: { id: parseInt(data.category_id) }
-        })
-        //console.log('CAT: ', category)
-
         //Comprobar si la categoria existe
         if (category) {
           //Insertar el objeto en Entitites
@@ -44,7 +44,7 @@ async function addEntity (data: AddEntity) {
               location: data?.location ? data.location : null
             }
           })
-          //console.log('RES: ', res)
+          console.log('RES: ', res)
           //Insertar en su tabla
           const insertQuerie = insertIntoCat(
             category?.view_name as string,

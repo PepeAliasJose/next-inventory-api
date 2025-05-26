@@ -186,7 +186,7 @@ export async function executeWithAuthAdmin (
         where: { id: parseInt(userToken.userId) },
         select: { name: true, email: true, admin: true, id: true }
       })
-      prisma.$disconnect()
+
       if (test == null) {
         return NextResponse.json({ error: errors.E405 }, { status: 403 })
       }
@@ -225,7 +225,7 @@ export async function executeWithAuth (
         where: { id: parseInt(userToken.userId) },
         select: { name: true, email: true, admin: true, id: true }
       })
-      prisma.$disconnect()
+
       if (test == null) {
         return NextResponse.json({ error: errors.E405 }, { status: 403 })
       }

@@ -93,7 +93,7 @@ async function getEntity (id: string) {
  */
 export async function PUT (
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   //Entity id
   const { id } = await params
