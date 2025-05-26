@@ -56,6 +56,7 @@ async function createUser (data: any) {
 }
 async function getUsers (data: any) {
   const res = await prisma.users.findMany({
+    where: { id: { gt: 1 } },
     select: { name: true, email: true, admin: true, id: true }
   })
   prisma.$disconnect()

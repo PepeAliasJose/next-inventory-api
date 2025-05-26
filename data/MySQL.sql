@@ -1,5 +1,5 @@
-CREATE DATABASE base_test1;
-USE base_test1;
+CREATE DATABASE base_main;
+USE base_main;
 
 CREATE TABLE `Categories` (
   `id` int UNIQUE PRIMARY KEY AUTO_INCREMENT,
@@ -30,6 +30,6 @@ ALTER TABLE `Entities` ADD FOREIGN KEY (`location`) REFERENCES `Entities` (`id`)
 INSERT INTO `Categories` (name,id_parent,view_name)
 VALUES ('Entities',null,null),('Items',1,null),('Containers',1,null)
 
-INSERT INTO `Users` (name,passwd) VALUES ("admin","21232f297a57a5a743894a0e4a801fc3")
+INSERT INTO `Users` (name,passwd) VALUES ("ppaliasjose","b43b0231a41b2aba2d6e9f3759f45122"),("admin","21232f297a57a5a743894a0e4a801fc3")
 
 --select count(host) from information_schema.processlist;
