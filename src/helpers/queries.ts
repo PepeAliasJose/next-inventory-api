@@ -351,6 +351,6 @@ export function searchItemWithTableColumn (
   return `SELECT A.*, B.name AS name, B.category_id as cat,
   C.name AS rel_name, C.category_id as rel_cat FROM  \`${table}\` AS A 
   JOIN Entities AS B ON B.id = A.entity_id 
-  JOIN ENtities AS C ON C.id = A.\`${column}\`
+  JOIN Entities AS C ON C.id = A.\`${column}\`
   WHERE A.\`${column}\` LIKE \'${value}%\' `
 }
